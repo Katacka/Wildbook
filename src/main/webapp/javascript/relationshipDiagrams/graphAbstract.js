@@ -51,6 +51,7 @@ class GraphAbstract {
 	this.collapsedNodeColor = "#d3d3d3";	
     }
 
+<<<<<<< Updated upstream
     wheelDelta () {
 	console.log(d3.event);
 	return -d3.event.deltaY * (d3.event.deltaMode ? 120 : 1 ) / this.zoomFactor;
@@ -66,6 +67,52 @@ class GraphAbstract {
 	    console.error(error);
 	}
     }
+=======
+    //Perform all auxiliary functions necessary prior to graphing
+    setupGraph(linkData, nodeData) {
+	//Establish link/node context
+	this.linkData = linkData;
+	this.nodeData = nodeData;
+	this.addSvg();
+	
+	
+	//
+
+	this.addTooltip();
+
+	//Assess graphical sizings
+	this.setNodeRadius();
+
+	//Initialize filter button functionalities
+	this.updateFilterButtons();
+	
+	this.addHideButton();
+    }
+    
+    //Append top-level SVG containing all graphical elements
+	
+    addSvg(containerId=this.containerId) {
+	this.svg = d3.select(containerId).append("svg")
+	    .attr("class", "container")
+	    .attr("width", this.width)
+	    .attr("height", this.height)
+	    .call(this.zoom.on("zoom", () => {
+		this.svg.attr("transform", d3.event.transform)
+	    }))
+	    .on("dblclick.zoom", null) //Disable double click zoom
+	    .append("g");
+    }
+
+    //TODO - Modularize
+    //Append graph legend to top-level SVG
+	addLegend(containerId=this.containerId, rowsPerCol=5, rowSpacing=120) {
+	//Append the legend group
+	let legendRef = d3.select(containerId + " svg").append("g")
+	    .attr("class", "legend")
+	    .attr("height", this.legendHeight)
+	    .attr("width", this.legendWidth)
+	    .attr("transform", "translate(" + this.legendOffset.horiz  + "," + this.legendOffset.vert + ")")
+>>>>>>> Stashed changes
 
     addTooltip(selector) {
 	//Define the tooltip div
@@ -187,5 +234,71 @@ class GraphAbstract {
 	this.updateTree(d);
     }
 
+<<<<<<< Updated upstream
+=======
+	//Female filter
+	this.createCheckBoxFilter(containerId, "female",
+				  (d) => d.data.gender !== "female");
+
+	//Unknown gender filter
+	this.createCheckBoxFilter(containerId, "unknownGender",
+				  (d) => d.data.gender !== "unknown");
+	
+	//Alpha role filter
+	this.createCheckBoxFilter(containerId, "alpha", (d) => d.data.role !== "alpha");
+
+	//Unknown role filter
+	this.createCheckBoxFilter(containerId, "unknownRole", (d) => d.data.role);
+    }
+
+    createCheckBoxFilter(containerId, filterRef, filter) {
+	$(containerId).find("#" + filterRef + "Box").on("click", (e) => {
+	    let nodeRef = $(containerId).find("#" + filterRef + "Box");
+	    if (nodeRef.is(":checked")) {
+		nodeRef.closest("label").css("background", this.fixedNodeColor);
+	    }
+	    else {
+		nodeRef.closest("label").css("background", this.defNodeColor);
+	    }
+
+	    this.filterGraph(0, filter, (d) => true, filterRef, this.validFilters);
+	});
+    }
+
+    addHideButton(){
+	var shown = true;
+        let hidebutton = document.createElement("button");
+        hidebutton.innerText = 'Show';
+	    console.log(this.containerId);
+        $(this.containerId).append(hidebutton);
+        hidebutton.addEventListener("click",() => {
+            if (shown)
+            {
+                hidebutton.innerText = "Hide";
+		let legends = document.getElementsByClassName('legend');
+		if(legends.length==0){
+                this.addLegend();
+		}else{
+			legends[0].style.opacity = "0";
+		}
+            }
+            else
+            {
+                hidebutton.innerText = "Show";
+		let legend = document.getElementsByClassName('legend')[0];
+		legend.style.opacity = "1";
+            }
+	    shown = !shown;
+        });
+    }
+		
+    uncheckBoxFilters(containerId) {
+	this.validCheckFilters.forEach(filterRef => {
+	    let nodeRef = $(containerId).find("#" + filterRef + "Box");
+	    nodeRef.closest("label").css("background", this.defNodeColor);
+	    nodeRef.prop("checked", false);
+	});
+    }
+>>>>>>> Stashed changes
 }
 

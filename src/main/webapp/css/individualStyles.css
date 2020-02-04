@@ -391,6 +391,10 @@ th {
   box-shadow: none;
 }
 
+.legend {
+  transition: opacity 3s ease 0s;
+}
+
 #researchers {
   display: flex;
   flex-wrap: wrap;
