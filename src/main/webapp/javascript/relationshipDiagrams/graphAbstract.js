@@ -474,19 +474,15 @@ class GraphAbstract { //See static attributes below class
      */	
     zoomIn() {
 	
-	this.zoom.scaleBy(this.svg.transition().duration(750), 1.5);
+	this.zoom.translateExtent([[this.focusedNode.x, this.focusedNode.y],[this.focusedNode.x, this.focusedNode.y]]).scaleBy(this.svg.transition().duration(750), 1.5);
     }
 
     /**
      * Zoom out when button is pressed
      */	
     zoomOut() {
-	/*let scale = d3.event.transform.k;
-	this.svg.transition()
-	    .duration(this.transitionDuration)
-	    .attr("transform", "scale(" + (k / 1.5)  + ")");*/
 	
-	this.zoom.scaleBy(this.svg.transition().duration(750), 1 / 1.5);
+	this.zoom.translateExtent([[this.focusedNode.x, this.focusedNode.y],[this.focusedNode.x, this.focusedNode.y]]).scaleBy(this.svg.transition().duration(750), 1 / 1.5);
     }
 
     /**
