@@ -473,16 +473,18 @@ class GraphAbstract { //See static attributes below class
      * Zoom in when button is pressed
      */	
     zoomIn() {
-	
-	this.zoom.translateExtent([[this.focusedNode.x, this.focusedNode.y],[this.focusedNode.x, this.focusedNode.y]]).scaleBy(this.svg.transition().duration(750), 1.5);
+	this.zoom.translateExtent([[this.focusedNode.x, this.focusedNode.y],
+				   [this.focusedNode.x, this.focusedNode.y]])
+	    .scaleBy(this.svg.transition().duration(750), 1.5);
     }
 
     /**
      * Zoom out when button is pressed
      */	
     zoomOut() {
-	
-	this.zoom.translateExtent([[this.focusedNode.x, this.focusedNode.y],[this.focusedNode.x, this.focusedNode.y]]).scaleBy(this.svg.transition().duration(750), 1 / 1.5);
+	this.zoom.translateExtent([[this.focusedNode.x, this.focusedNode.y],
+				   [this.focusedNode.x, this.focusedNode.y]])
+	    .scaleBy(this.svg.transition().duration(750), 1 / 1.5);
     }
 
     /**

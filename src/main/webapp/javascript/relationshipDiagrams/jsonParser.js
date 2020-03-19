@@ -83,16 +83,16 @@ class Node {
 
 //Helper class purposed to query and parse JSON node/link data for social and coOccurrence graphs
 class JSONParser {
-   /**
-    * Creates a JSONParse instance
-    * @param {globals} [object] - Global data from Wildbook .jsp pages
-    * @param {selectedNodes} [string|iterable] - Nodes included when generating JSON data. 
-    *   When null, all nodes are included. Defaults to null.
-    * @param {disjointNodes} [boolean] - Whether nodes disconnected from the central node (iId) should be included when 
-    *   generating JSON data. Defaults to false  
-    * @param {maxNumNodes} [int] - Determines the total number of nodes to graph
-    * @param {localFiles} [boolean] - Whether requests should be made to local MarkedIndividual/Relationship data
-    */
+    /**
+     * Creates a JSONParse instance
+     * @param {globals} [object] - Global data from Wildbook .jsp pages
+     * @param {selectedNodes} [string|iterable] - Nodes included when generating JSON data. 
+     *   When null, all nodes are included. Defaults to null.
+     * @param {disjointNodes} [boolean] - Whether nodes disconnected from the central node (iId) should be included when 
+     *   generating JSON data. Defaults to false  
+     * @param {maxNumNodes} [int] - Determines the total number of nodes to graph
+     * @param {localFiles} [boolean] - Whether requests should be made to local MarkedIndividual/Relationship data
+     */
     constructor(globals, selectedNodes=null, disjointNodes=false, maxNumNodes=-1, localFiles=false) {	
 	//Keep track of a unique id for each node and link
 	this.nodeId = 0;
@@ -110,11 +110,29 @@ class JSONParser {
 	this.localFiles = localFiles;
 	this.globals = globals;
     }
+
+    /**
+     * Static function used to populate the {nodeData} and {relationshipData} fields prior to
+     * generating graphs s.t. data is guarenteed to be queried only once
+     * @param {iId} [String] - The id of the central node
+     * @param {callbacks} [List] - Graphing functions to call
+     * @param {diagramIds} [List] - Diagrams to appends graphs to 
+     */
+    async preFetchData(iId, callbacks, diagramIds) {
+	await this.queryNodeData();
+	await this.queryRelationshipData();
+
+	for (let i = 0; i < callbacks.length; i ++) {
+	    let call = callbacks[i];
+	    let diagramId = diagramIds[i];
+	    call(iId, diagramId, this.globals);
+	}
+    }
     
     /**
      * Parse link and node data to generate a graph via {graphCallback}
      * @param {graphCallback} [function] - Handles generated node and link data arrays
-     * @param {iId} [string] - The id of the central node. Defaults to null
+     * @param {iId} [String] - The id of the central node. Defaults to null
      * @param {isCoOccurrence} [boolean] - Determines whether node/link data should feature 
      *   additional coOccurrence modifications
      */
@@ -182,22 +200,6 @@ class JSONParser {
     queryData(type, query, callback=null) {
 	return new Promise((resolve, reject) => {
 	    if (!JSONParser[type]) { //Memoize the result
-		/*$.ajax({
-		    "url": query,
-		    "type": "GET",
-		    "dataType": "json",
-		    "success": (json) => {
-			if (callback) callback(json, type, resolve);
-			else {
-			    console.log(json);
-			    JSONParser[type] = json;
-			    resolve(); //Handle the encapsulating promise
-			}
-		    },
-		    "error": (req, error) => reject(error)
-		});*/
-
-		
 		d3.json(query, (error, json) => {
 		    if (error) {
 			reject(error);

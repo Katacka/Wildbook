@@ -1,13 +1,14 @@
 /**
  * Occurence graph global API (used in individuals.jsp)
- * @param {individualID} [string] - Identifies the central node
+ * @param {individualId} [string] - Identifies the central node
  * @param {globals} [list] - Global variables passed in to maintain 
  *   compatibility with individuals.jsp
+ * @param containerId - Html element the graph will be appended to
  * @param {parser} [JSONParser] - Optional parser specification. Defaults to null
  */	
-function setupOccurrenceGraph(individualID, globals, parser=null) {
+function setupOccurrenceGraph(individualId, containerId, globals, parser=null) {
     let focusedScale = 1.75;
-    let occ = new OccurrenceGraph(individualID, "#bubbleChart", globals, focusedScale, parser);
+    let occ = new OccurrenceGraph(individualId, containerId, globals, focusedScale, parser);
     occ.applyOccurrenceData();
 }
 

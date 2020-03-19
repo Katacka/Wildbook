@@ -1458,12 +1458,8 @@ if (sharky.getNames() != null) {
 	      <label for="nodeDist"> Node Distance (Geodesic) - <span class="sliderLabel" id="nodeDistVal"></span></label>
 	      <input type="range" min=0 class="graphSlider" id="nodeDist">
 	    </div>
-          </div>
-					     
+          </div>					     
 	  <% String individualID = sharky.getIndividualID();%>	
-	  <script type="text/javascript">
-	    setupSocialGraph("<%=individualID%>", "#socialDiagram", wildbookGlobals);
-	  </script>
 	</div>
 
         <%
@@ -1641,8 +1637,11 @@ if (sharky.getNames() != null) {
 		<input type="range" min=0 class="graphSlider" id="spatial">
       	      </div>
     	    </div>
-	    <script type="text/javascript">
-              setupOccurrenceGraph("<%=occurrenceIndividualID%>", wildbookGlobals)
+	      <script type="text/javascript">
+	        let parser = new JSONParser(wildbookGlobals);
+	        parser.preFetchData("<%=occurrenceIndividualID%>",
+			     [setupSocialGraph, setupOccurrenceGraph],
+			     ["#socialDiagram", "#bubbleChart"]);
             </script>
           </div>
 
