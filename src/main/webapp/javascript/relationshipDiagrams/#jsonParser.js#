@@ -170,7 +170,7 @@ class JSONParser {
 	let query;
 	if (!this.localFiles) {
 	    query = this.globals.baseUrl + "/api/jdoql?" +
-		encodeURIComponent("SELECT FROM org.ecocean.MarkedIndividual"); //Get all individuals
+		encodeURIComponent("SELECT FROM org.ecocean.MarkedIndividual "); //Get all individuals
 	}
 	else query = "./MarkedIndividual.json";
 	return this.queryData("nodeData", query, this.storeQueryAsDict);
