@@ -115,7 +115,7 @@ if (request.getParameter("number")!=null) {
 
         Query q = myShepherd.getPM().newQuery("javax.jdo.query.SQL", "SELECT \"INDIVIDUALID\" FROM \"MARKEDINDIVIDUAL\" WHERE \"LEGACYINDIVIDUALID\" = ? OR \"ALTERNATEID\" LIKE ? OR \"INDIVIDUALID\" = ?");
         List results = (List) q.execute(oldWorld, "%" + oldWorld + "%", oldWorld);
-        
+
         String tryId = null;
         if (results.iterator().hasNext()) tryId = (String) results.iterator().next();
         q.closeAll();
@@ -246,7 +246,7 @@ if (request.getParameter("id")!=null || request.getParameter("number")!=null) {
 <script src="javascript/underscore-min.js"></script>
 <script src="javascript/backbone-min.js"></script>
 <script src="javascript/core.js"></script>
-<script src="javascript/classes/Base.js"></script>    
+<script src="javascript/classes/Base.js"></script>
 
 <link rel="stylesheet" href="javascript/tablesorter/themes/blue/style.css" type="text/css" media="print, projection, screen" />
 
@@ -306,14 +306,14 @@ input.nameKey, input.nameValue {
 <script src="javascript/bubbleDiagram/misc.js"></script>
 <script src="javascript/bubbleDiagram/micro-observer.js"></script>
 <script src="javascript/bubbleDiagram/microplugin.js"></script>
-<script src="javascript/kdTree.js"></script>	
+<script src="javascript/kdTree.js"></script>
 <script src="javascript/relationshipDiagrams/jsonParser.js"></script>
 <script src="javascript/relationshipDiagrams/graphAbstract.js"></script>
 <script src="javascript/relationshipDiagrams/forceLayoutAbstract.js"></script>
 <script src="javascript/bubbleDiagram/coOccurrenceGraph.js"></script>
 <script src="javascript/relationshipDiagrams/socialGraph.js"></script>
 <script src="javascript/bubbleDiagram/encounter-calls.js"></script>
-    
+
 
 
 <style>
@@ -550,17 +550,17 @@ if (sharky.getNames() != null) {
 	      if (MarkedIndividual.NAMES_KEY_NICKNAME.equals(nameKey)) nameLabel = nickname;
 	      else if (MarkedIndividual.NAMES_KEY_ALTERNATEID.equals(nameKey)) nameLabel = alternateID;
 	      String nameValue = sharky.getName(nameKey);
-	
+
 	      %>
 	      <div class="namesection <%=nameKey%>">
 	        <span class="nameKey" data-oldkey="<%=nameKey%>"><em><%=nameLabel%></em></span>
 	        <input class="form-control name nameKey" name="nameKey" type="text" id="nameKey" value="<%=nameKey%>" placeholder="<%=nameKey %>" >
 	        <span id="nameColon">:</span>
-	
+
 	        <span class="nameValue <%=nameKey%>" data-oldvalue="<%=nameValue%>"><%=nameValue%></span>
 	        <input class="form-control name nameValue" name="nameValue" type="text" id="nameValue" value="<%=nameValue%>" placeholder="<%=nameValue %>" >
 	        <input class="btn btn-sm editFormBtn namebutton" type="submit" value="Update">
-	
+
 	        <span class="nameCheck">&check;</span>
 	        <span class="nameError">X</span>
 	        <input class="btn btn-sm editFormBtn deletename" type="submit" value="X">
@@ -582,7 +582,7 @@ if (sharky.getNames() != null) {
       <span class="nameValue newname"></span>
       <input class="form-control nameValue name" name="nameValue" type="text" id="nameValue" value="" placeholder="" >
       <input class="btn btn-sm editFormBtn namebutton" type="submit" value="Update">
-      
+
       <span class="nameCheck">&check;</span>
       <span class="nameError">X</span>
 
@@ -731,7 +731,7 @@ if (sharky.getNames() != null) {
 
 }
             %></p>
-            
+
 
             <%
             String sexValue="";
@@ -1101,7 +1101,7 @@ if (sharky.getNames() != null) {
       }
       }
       %>
-      
+
             <%-- Start Encounter Table --%>
       <p><strong><%=numencounters %> &amp; <%=props.getProperty("tissueSamples") %></strong></p>
       <div class="encountersBioSamples">
@@ -1232,7 +1232,7 @@ if (sharky.getNames() != null) {
         <!-- End genetics -->
       </div>
       <br></br>
-      
+
       <%-- Relationship Graphs --%>
       <div>
         <a name="socialRelationships"></a>
@@ -1506,18 +1506,18 @@ if (sharky.getNames() != null) {
             <input class="btn btn-md" name="EditRELATIONSHIP" type="submit" id="EditRELATIONSHIP" value="<%=props.getProperty("update") %>">
             <input class="btn btn-md" type="button" id="closeRelationshipForm" value="Cancel">
           </form>
-          
+
           		<script type="text/javascript">
 	                    $(document).ready(function() {
-	                    	
+
 	                    	//set autocomplete on #individualAddEncounterInput above
 	                    	setIndivAutocomplete($('#individual2'));
-	                    	
-	                    	
-	                    	
+
+
+
 	                    });
                 </script>
-          
+
         </div>
 
         <%
@@ -1527,7 +1527,7 @@ if (sharky.getNames() != null) {
 
         <div role="navigation" id="socialNavigation">
           <ul class="nav nav-tabs">
-	    <li id="socialDiagramTab" class="active socialVisTab"> 
+	    <li id="socialDiagramTab" class="active socialVisTab">
 	      <a href="#socialDiagram">Social Diagram</a>
 	    </li>
             <li id="communityTableTab" class="socialVisTab">
@@ -1537,7 +1537,7 @@ if (sharky.getNames() != null) {
         </div>
 
 	<div id="socialDiagram" class="socialVis">
-	  <div id="familyChart">		
+	  <div id="familyChart">
 	    <div id="graphFilters">
 	      <div id="graphOptions">
     	        <button type="button" id="reset">Reset Filters</button>
@@ -1545,15 +1545,15 @@ if (sharky.getNames() != null) {
 	        <button type="button" id="gZoomOut">Zoom Out</button>
 	      </div>
 	      <div id="filterGender" class="filterOptions">
-	        <label>	  
+	        <label>
 	          <input type="checkbox" id="maleBox">
 	          <span>Male</span>
 	          </label>
-	        <label>	  
+	        <label>
 	          <input type="checkbox" id="femaleBox">
 	          <span>Female</span>
 	        </label>
-	        <label>	  
+	        <label>
 	          <input type="checkbox" id="unknownGenderBox">
 	          <span>Unknown Gender</span>
 	        </label>
@@ -1569,11 +1569,11 @@ if (sharky.getNames() != null) {
 	        </label>
 	      </div>
 	      <div class="filterOptions">
-	        <label>	  
+	        <label>
 	          <input type="checkbox" id="selectFamilyBox">
 	          <span>Select Family</span>
 	        </label>
-                <label>	  
+                <label>
 	          <input type="checkbox" id="filterFamilyBox">
 	          <span>Filter Family</span>
 	        </label>
@@ -1590,8 +1590,8 @@ if (sharky.getNames() != null) {
 	      <label for="nodeDist"> Node Distance (Geodesic) - <span class="sliderLabel" id="nodeDistVal"></span></label>
 	      <input type="range" min=0 class="graphSlider" id="nodeDist">
 	    </div>
-          </div>					     
-	  <% String individualID = sharky.getIndividualID();%>	
+          </div>
+	  <% String individualID = sharky.getIndividualID();%>
 	</div>
 
         <%
@@ -1693,6 +1693,8 @@ if (sharky.getNames() != null) {
 	<p><strong><%=props.getProperty("cooccurrence")%></strong></p>
 	<script type="text/javascript">
         <% String occurrenceIndividualID = sharky.getIndividualID();%>
+        <% String individualGenus = sharky.getGenusSpecies();%>
+
         $(document).ready(function() {
           getData("<%=occurrenceIndividualID%>", "<%=sharky.getDisplayName() %>");
         });
@@ -1720,15 +1722,15 @@ if (sharky.getNames() != null) {
 	          <button type="button" id="gZoomOut">Zoom Out</button>
 	        </div>
 	        <div id="filterGender" class="filterOptions">
-	          <label>	  
+	          <label>
 	            <input type="checkbox" id="maleBox">
 	            <span>Male</span>
 	            </label>
-	          <label>	  
+	          <label>
 	            <input type="checkbox" id="femaleBox">
 	            <span>Female</span>
 	          </label>
-	          <label>	  
+	          <label>
 	            <input type="checkbox" id="unknownGenderBox">
 	            <span>Unknown Gender</span>
 	          </label>
@@ -1744,11 +1746,11 @@ if (sharky.getNames() != null) {
 	          </label>
 	        </div>
 	        <div class="filterOptions">
-	          <label>	  
+	          <label>
 	            <input type="checkbox" id="selectFamilyBox">
 	            <span>Select Family</span>
 	          </label>
-                  <label>	  
+                  <label>
 	            <input type="checkbox" id="filterFamilyBox">
 	            <span>Filter Family</span>
 	          </label>
@@ -1771,7 +1773,7 @@ if (sharky.getNames() != null) {
     	    </div>
 	      <script type="text/javascript">
 	        let parser = new JSONParser(wildbookGlobals);
-	        parser.preFetchData("<%=occurrenceIndividualID%>",
+	        parser.preFetchData("<%=occurrenceIndividualID%>", "<%=individualGenus%>"
 			     [setupSocialGraph, setupOccurrenceGraph],
 			     ["#socialDiagram", "#bubbleChart"]);
             </script>
@@ -1834,16 +1836,16 @@ if (sharky.getNames() != null) {
 
           <%}%>
         </table>
-        <%} 
+        <%}
         else {
-        	%> 
+        	%>
         	<%=none %></p>
         	<%
           }
         if (CommonConfiguration.isCatalogEditable(context)) {
         %>
         <form action="IndividualAddFile" method="post" enctype="multipart/form-data" name="addDataFiles">
-        	<input name="action" type="hidden" value="fileadder" id="action"> 
+        	<input name="action" type="hidden" value="fileadder" id="action">
           	<input name="individual" type="hidden" value="<%=sharky.getId()%>" id="individual">
           	<p><%=addDataFile %>:</p>
           	<p><input name="file2add" type="file" size="50"></p>
