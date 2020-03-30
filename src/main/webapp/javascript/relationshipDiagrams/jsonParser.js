@@ -122,7 +122,6 @@ class JSONParser {
 	await this.queryNodeData();
 	await this.queryRelationshipData();
 
-	//Graph data
 	for (let i = 0; i < callbacks.length; i ++) {
 	    let call = callbacks[i];
 	    let diagramId = diagramIds[i];
