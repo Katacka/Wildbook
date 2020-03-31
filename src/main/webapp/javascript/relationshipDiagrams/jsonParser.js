@@ -120,7 +120,7 @@ class JSONParser {
      */
     async preFetchData(iId, callbacks, diagramIds) {
 	await this.queryNodeData();
-	await this.queryRelationshipData();
+	await this.queryRelationshipData(iId);
 
 	for (let i = 0; i < callbacks.length; i ++) {
 	    let call = callbacks[i];
@@ -167,9 +167,10 @@ class JSONParser {
      */
     queryNodeData() {
 	let query;
+	let genus = "humpback";//delete this, dummied up until we pass in the genus from individuals.jsp
 	if (!this.localFiles) {
 	    query = this.globals.baseUrl + "/api/jdoql?" +
-		encodeURIComponent("SELECT FROM org.ecocean.MarkedIndividual"); //Get all individuals
+		encodeURIComponent("SELECT FROM org.ecocean.MarkedIndividual WHERE genus == \"" + genus + "\""); //Get all individuals
 	}
 	else query = "./MarkedIndividual.json";
 	return this.queryData("nodeData", query, this.storeQueryAsDict);
@@ -179,12 +180,13 @@ class JSONParser {
      * Query wrapper for the storage of Relationship data
      * @returns {queryData} [array] - All Relationship data in the Wildbook DB
      */
-    queryRelationshipData() {
+    queryRelationshipData(iId) {
 	let query;
+	console.log("Here is the individual id: ", iId);
 	if (!this.localFiles) {
 	    query = this.globals.baseUrl + "/api/jdoql?" +
 		encodeURIComponent("SELECT FROM org.ecocean.social.Relationship " +
-				   "WHERE (this.type == \"social grouping\")");
+				   "WHERE (type == \"social grouping\")");
 	}
 	else query = "./Relationship.json";
 	return this.queryData("relationshipData", query);
