@@ -51,6 +51,12 @@
     pointer-events: none;
 }
 
+.loading{
+    display: block;
+    margin-left: auto;
+    margin-right:auto;
+}
+
 /*Edit forms*/
 label {
     font-weight: lighter;

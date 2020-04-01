@@ -7,6 +7,11 @@
  */
 function setupSocialGraph(individualId, containerId="#socialDiagram", globals, parser=null) {
     let focusedScale = 1.25;
+    let loadingDiv = document.createElement("img");
+    loadingDiv.src = "../loadingSpinner.svg";
+    loadingDiv.classList.add('loading');
+    let container = document.getElementById("familyChart");
+    container.appendChild(loadingDiv);
     let sg = new SocialGraph(individualId, "#familyChart", globals, focusedScale, parser);
     sg.applySocialData();
 }
@@ -41,6 +46,8 @@ class SocialGraph extends ForceLayoutAbstract {
 	if (nodes.length > 0) {
 	    this.setupGraph(links, nodes);
 	    this.updateGraph(links, nodes);
+	  //document.getElementById("familyChart").removeChild(document.getElementById("loadingDiv"));
+	    $('#familyChart').children('.loading').remove();
 	}
 	else this.showTable("#socialDiagram", "#communityTable");
     }

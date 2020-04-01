@@ -7,6 +7,10 @@
  * @param {parser} [JSONParser] - Optional parser specification. Defaults to null
  */	
 function setupOccurrenceGraph(individualId, containerId, globals, parser=null) {
+    let loadingDiv = document.createElement("img");
+    loadingDiv.src = "../loadingSpinner.svg";
+    loadingDiv.classList.add('loading');
+    $(containerId).append(loadingDiv);
     let focusedScale = 1.75;
     let occ = new OccurrenceGraph(individualId, containerId, globals, focusedScale, parser);
     occ.applyOccurrenceData();
@@ -46,6 +50,7 @@ class OccurrenceGraph extends ForceLayoutAbstract {
 	if (nodes.length >= 1) { 
 	    this.setupGraph(links, nodes);
 	    this.updateGraph(links, nodes);
+	    $(this.containId).children('.loading').remove();
 	}
 	else this.showTable("#cooccurrenceDiagram", "#cooccurrenceTable");
     }
