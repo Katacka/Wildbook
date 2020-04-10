@@ -1579,6 +1579,9 @@ if (sharky.getNames() != null) {
 	        </label>
 	      </div>
 	    </div>
+	    <div class="loadingIcon">
+	      <img src="loadingSpinner.svg">
+            </div>
 	  </div>
 
           <div class="graphSliders">
@@ -1694,6 +1697,7 @@ if (sharky.getNames() != null) {
 	<script type="text/javascript">
         <% String occurrenceIndividualID = sharky.getIndividualID();%>
         <% String individualGenus = sharky.getGenusSpecies();%>
+	<% String individualEpithet = sharky.getSpecificEpithet();%>
 
         $(document).ready(function() {
           getData("<%=occurrenceIndividualID%>", "<%=sharky.getDisplayName() %>");
@@ -1756,6 +1760,9 @@ if (sharky.getNames() != null) {
 	          </label>
 	        </div>
 	      </div>
+	      <div class="loadingIcon">
+	        <img src="loadingSpinner.svg">
+              </div>
             </div>
 	    <div class="graphSliders">
       	      <div class="coOccurrenceSliderWrapper">
@@ -1772,8 +1779,8 @@ if (sharky.getNames() != null) {
       	      </div>
     	    </div>
 	      <script type="text/javascript">
-	        let parser = new JSONParser(wildbookGlobals);
-	        parser.preFetchData("<%=occurrenceIndividualID%>", "<%=individualGenus%>"
+	        let querier = new JSONQuerier(wildbookGlobals);
+	        querier.preFetchData("<%=occurrenceIndividualID%>", "<%=individualGenus%>", "<%=individualEpithet%>",
 			     [setupSocialGraph, setupOccurrenceGraph],
 			     ["#socialDiagram", "#bubbleChart"]);
             </script>

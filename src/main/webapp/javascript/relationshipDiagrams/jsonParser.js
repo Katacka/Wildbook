@@ -81,86 +81,30 @@ class Node {
     }
 }
 
-//Helper class purposed to query and parse JSON node/link data for social and coOccurrence graphs
-class JSONParser {
-    /**
-     * Creates a JSONParse instance
-     * @param {globals} [object] - Global data from Wildbook .jsp pages
-     * @param {selectedNodes} [string|iterable] - Nodes included when generating JSON data.
-     *   When null, all nodes are included. Defaults to null.
-     * @param {disjointNodes} [boolean] - Whether nodes disconnected from the central node (iId) should be included when
-     *   generating JSON data. Defaults to false
-     * @param {maxNumNodes} [int] - Determines the total number of nodes to graph
-     * @param {localFiles} [boolean] - Whether requests should be made to local MarkedIndividual/Relationship data
-     */
-    constructor(globals, selectedNodes=null, disjointNodes=false, maxNumNodes=-1, localFiles=false) {
-	//Keep track of a unique id for each node and link
-	this.nodeId = 0;
-	this.linkId = 0;
-
-	//Generate a set of selected nodes (if provided) to be used as a mask
-	if (selectedNodes) {
-	    if (typeof selectedNodes === "string")
-		selectedNodes = selectedNodes.substr(1, selectedNodes.length - 2).split(", ");
-	    this.selectedNodes = new Set(selectedNodes);
-	}
-
-	this.disjointNodes = disjointNodes;
-	this.maxNumNodes = maxNumNodes;
-	this.localFiles = localFiles;
+class JSONQuerier {
+    constructor(globals, localFiles=false) {
 	this.globals = globals;
+	this.localFiles = localFiles;
     }
 
-    /**
+        /**
      * Static function used to populate the {nodeData} and {relationshipData} fields prior to
-     * generating graphs s.t. data is guarenteed to be queried only once
+     * generating graphs s.t. data is guarenteed to only be queried once
      * @param {iId} [String] - The id of the central node
      * @param {genus} [String] - The genus of the central node
      * @param {callbacks} [List] - Graphing functions to call
      * @param {diagramIds} [List] - Diagrams to appends graphs to
      */
-    async preFetchData(iId, genus, callbacks, diagramIds) {
-	await this.queryNodeData(genus);
+    async preFetchData(iId, genus, epithet, callbacks, diagramIds, parsers=[]) {
+	await this.queryNodeData(genus, epithet);
 	await this.queryRelationshipData(genus);
-
+	
 	//Graph data
 	for (let i = 0; i < callbacks.length; i ++) {
 	    let call = callbacks[i];
-	    let diagramId = diagramIds[i];
-	    call(iId, diagramId, this.globals);
+	    if (parsers[i]) call(iId, diagramIds[i], this.globals, parsers[i]);
+	    else call(iId, diagramIds[i], this.globals);
 	}
-    }
-
-    /**
-     * Parse link and node data to generate a graph via {graphCallback}
-     * @param {graphCallback} [function] - Handles generated node and link data arrays
-     * @param {iId} [String] - The id of the central node. Defaults to null
-     * @param {isCoOccurrence} [boolean] - Determines whether node/link data should feature
-     *   additional coOccurrence modifications
-     */
-    parseJSON(graphCallback, iId=null, isCoOccurrence=false) {
-	this.queryNodeData().then(() => {
-	    this.queryRelationshipData().then(() => {
-		this.processJSON(graphCallback, iId, isCoOccurrence);
-	    }).catch(error => console.error(error));
-	}).catch(error => console.error(error));
-    }
-
-    /**
-     * Transform queried MarkedIndividual and Relationship data to graphable node and link objects
-     * @param {graphCallback} [function] - Handles generated node and link data arrays
-     * @param {iId} [string] - The id of the central node. Defaults to null
-     * @param {isCoOccurrence} [boolean] - Determines whether node/link data should feature 
-     *   additional coOccurrence modifications
-     */
-    processJSON(graphCallback, iId, isCoOccurrence) {
-	let [nodeDict, nodeList] = this.parseNodes(iId);
-	let [linkDict, linkList] = this.parseLinks(nodeDict);
-
-	if (isCoOccurrence) { //Extract temporal and latitude/longitude encounter data
-	    [nodeList, linkList] = this.modifyOccurrenceData(iId, nodeDict, linkList);
-	}
-	graphCallback(nodeList, linkList);
     }
 
     /**
@@ -168,13 +112,15 @@ class JSONParser {
      * @param {genus} [String] - The genus of the central node being graphed
      * @return {queryData} [array] - All MarkedIndividual data in the Wildbook DB
      */
-    queryNodeData(genus) {
+    queryNodeData(genus, epithet) {
 	let query;
 	if (!this.localFiles) {
-	    query = this.globals.baseUrl + "/api/jdoql?" +
-		encodeURIComponent("SELECT FROM org.ecocean.MarkedIndividual"); //Get all individuals
+	    query = window.location.host + this.globals.baseUrl + "/encounters/socialJson.jsp?";
+	    if (genus) query += "genus=" + genus + "&";
+	    if (epithet) query += "specificEpithet=" + epithet + "&";
 	}
 	else query = "./MarkedIndividual.json";
+	console.log(query);
 	return this.queryData("nodeData", query, this.storeQueryAsDict);
     }
 
@@ -198,14 +144,15 @@ class JSONParser {
      * Retrieve JSON data from the Wildbook DB
      * @param {type} [string] - The static attribute key used to store the queried data
      * @param {query} [string] - Determines the query ran
-     * @param {callback} [function] - If not null, passes query data into the specified {callback} function for
-     *   further processing. Defaults to null
+     * @param {callback} [function] - If not null, passes query data into the specified {callback} 
+     *   function for further processing. Defaults to null
      */
     queryData(type, query, callback=null) {
 	return new Promise((resolve, reject) => {
 	    if (!JSONParser[type]) { //Memoize the result
 		d3.json(query, (error, json) => {
 		    if (error) {
+			console.log(error);
 			reject(error);
 		    }
 		    else if (callback) callback(json, type, resolve);
@@ -240,6 +187,52 @@ class JSONParser {
 	}
 	else console.error("No " + type + " JSON data found");
 	resolve(); //Handle the encapsulating promise
+    }
+}
+
+//Helper class purposed to parse JSON node/link data for social and coOccurrence graphs
+class JSONParser {
+    /**
+     * Creates a JSONParse instance
+     * @param {globals} [object] - Global data from Wildbook .jsp pages
+     * @param {selectedNodes} [string|iterable] - Nodes included when generating JSON data.
+     *   When null, all nodes are included. Defaults to null.
+     * @param {disjointNodes} [boolean] - Whether nodes disconnected from the central node (iId) should be included when
+     *   generating JSON data. Defaults to false
+     * @param {maxNumNodes} [int] - Determines the total number of nodes to graph
+     * @param {localFiles} [boolean] - Whether requests should be made to local MarkedIndividual/Relationship data
+     */
+    constructor(selectedNodes=null, disjointNodes=false, maxNumNodes=-1) {
+	//Keep track of a unique id for each node and link
+	this.nodeId = 0;
+	this.linkId = 0;
+
+	//Generate a set of selected nodes (if provided) to be used as a mask
+	if (selectedNodes) {
+	    if (typeof selectedNodes === "string")
+		selectedNodes = selectedNodes.substr(1, selectedNodes.length - 2).split(", ");
+	    this.selectedNodes = new Set(selectedNodes);
+	}
+
+	this.disjointNodes = disjointNodes;
+	this.maxNumNodes = maxNumNodes;
+    }
+
+    /**
+     * Transform queried MarkedIndividual and Relationship data to graphable node and link objects
+     * @param {graphCallback} [function] - Handles generated node and link data arrays
+     * @param {iId} [string] - The id of the central node. Defaults to null
+     * @param {isCoOccurrence} [boolean] - Determines whether node/link data should feature 
+     *   additional coOccurrence modifications
+     */
+    processJSON(graphCallback, iId, isCoOccurrence) {
+	let [nodeDict, nodeList] = this.parseNodes(iId);
+	let [linkDict, linkList] = this.parseLinks(nodeDict);
+
+	if (isCoOccurrence) { //Extract temporal and latitude/longitude encounter data
+	    [nodeList, linkList] = this.modifyOccurrenceData(iId, nodeDict, linkList);
+	}
+	graphCallback(nodeList, linkList);
     }
 
     /**
@@ -317,6 +310,7 @@ class JSONParser {
 		if (this.maxNumNodes > 0 && numNodes >= this.maxNumNodes) return [graphNodes, groupNum];
 
 		//Update the node
+		console.log(name);
 		graphNodes[name] = this.updateNodeData(nodes[name], group, this.getNodeId(), depth, iIdLinked);
 		numNodes++;
 
