@@ -41,6 +41,8 @@ public class SpotterConserveIO {
     private static final String PROP_ORGID_CI = "channelIslandsOrgId";
     private static final String PROP_USERID_CI = "channelIslandsUserId";
     private static final String PROP_ORGID_NEWUSER = "newUserOrgId";
+    private static final String LOCATIONID_CI = "Santa Barbara Channel";
+    private static final String LOCATION_COUNTRY_USA = "United States of America";
     public static final String ENCOUNTER_STATE_REVIEW = "spotter_review";
     private static Double WATER_DISTANCE_RADIUS = 300.0D;
     public static String apiUsername = null;
@@ -240,7 +242,10 @@ Distance Category: "B"
         //lat/lon come from occurrence
         enc.setDecimalLatitude(resolveLatLon(occJson, "device_latitude", "latitude"));
         enc.setDecimalLongitude(resolveLatLon(occJson, "device_longitude", "longitude"));
+        enc.setLocationID(LOCATIONID_CI);
+        enc.setCountry(LOCATION_COUNTRY_USA);
         User sub = ciToUser(allJson, myShepherd);
+        if ((sub != null) && (sub.getUsername() != null)) enc.setSubmitterID(sub.getUsername());
         enc.addSubmitter(sub);
         List<User> vols = ciGetVolunteerUsers(allJson, myShepherd);
         enc.setInformOthers(vols);
@@ -255,11 +260,8 @@ Distance Category: "B"
                 enc.setDateInMilliseconds(dt.getMillis());
             }
         }
-        String tax[] = ciSpeciesSplit(occJson.optString("CINMS Species", null));
-        if ((tax != null) && (tax.length > 1)) {
-            enc.setGenus(tax[0]);
-            enc.setSpecificEpithet(tax[1]);
-        }
+        Taxonomy tax = ciToTaxonomy(occJson.optString("CINMS Species", null), myShepherd);
+        enc.setTaxonomy(tax);
 
         //since we dont have proper images, but only references to them, we create annotations with special "placeholder" features
         int imageStart = jin.optInt("Image Number Start", -1);
@@ -272,6 +274,8 @@ Distance Category: "B"
             enc.addComments("<p class=\"error\"><b>NOTE:</b> too many images detected (" + (imageEnd - imageStart) + " > " + sanityMaxNumberImages + "); ignored</p><p class=\"json\">" + jin.toString(4) + "</p>");
             System.out.println("WARNING: " + enc + " number images > sanity check (" + sanityMaxNumberImages + ") [" + imageEnd + " - " + imageStart + "]");
         } else {
+            String annot_species = "unknown_species";
+            if (tax != null) annot_species = enc.getTaxonomyString();
             ArrayList<Annotation> anns = new ArrayList<Annotation>();
             for (int i = imageStart ; i <= imageEnd ; i++) {
                 JSONObject params = new JSONObject();
@@ -282,7 +286,7 @@ Distance Category: "B"
                 params.put("Image End", imageEnd);
                 params.put("description", "Image number " + i + " (in " + imageStart + "-" + imageEnd + "); Card Number " + jin.optString("Card Number", "Unknown") + ", PID Code " + jin.optString("PID Code", "Unknown"));
                 Feature ft = new Feature("org.ecocean.MediaAssetPlaceholder", params);
-                Annotation ann = new Annotation(ciSpecies(occJson.optString("CINMS Species", null)), ft);
+                Annotation ann = new Annotation(annot_species, ft);
 System.out.println(enc + ": just made " + ann);
                 anns.add(ann);
             }
@@ -300,6 +304,7 @@ System.out.println("MADE " + enc);
         return new Instant(name, dt, null);
     }
 
+/*
     //someday, Taxonomy!  sigh  TODO
     private static String ciSpecies(String species) {  //e.g. "Blue Whale" --> "Balaenoptera musculus" ... also: may be null
         return species;  //meh. for now.
@@ -308,6 +313,7 @@ System.out.println("MADE " + enc);
         if (species == null) return null;
         return species.split(" +");
     }
+*/
 
 /*
     unfortunately, we get a lot of noise for the "Observer Names" field, which need to be broken up
@@ -597,6 +603,7 @@ System.out.println("wa.tax => " + tax);
         if (urlStore == null) throw new RuntimeException("Could not find a URLAssetStore to store images");
         Encounter enc = new Encounter();
         User sub = waToUser(occJson, myShepherd);
+        if ((sub != null) && (sub.getUsername() != null)) enc.setSubmitterID(sub.getUsername());
         enc.addSubmitter(sub);
         enc.setCatalogNumber(Util.generateUUID());
         //enc.setGroupSize(???)
@@ -620,21 +627,13 @@ System.out.println("wa.tax => " + tax);
         enc.setDecimalLatitude(occ.getDecimalLatitude());
         enc.setDecimalLongitude(occ.getDecimalLongitude());
 
-        String waSpecies = occJson.optString("Whale Alert Species", null);
-/*
-        /// TODO FIX FOR Taxonomy class!!! String tax[] = ciSpeciesSplit(occJson.optString("Whale Alert Species", null));
-        if ((tax != null) && (tax.length > 1)) {
-            enc.setGenus(tax[0]);
-            enc.setSpecificEpithet(tax[1]);
-        }
-*/
+        Taxonomy tax = waToTaxonomy(occJson.optString("Whale Alert Species", null), myShepherd);
+System.out.println("wa.tax => " + tax);
+        enc.setTaxonomy(tax);
         String annotSpecies = "annot_species";
-        enc.setGenus("test");
-        enc.setSpecificEpithet("test");
-        if (waSpecies != null) {
-            annotSpecies = waSpecies;
-            enc.setSpecificEpithet(waSpecies);
-            occ.addSpecies(waSpecies, myShepherd);
+        if (tax != null) {
+            annotSpecies = enc.getTaxonomyString();
+            occ.addTaxonomy(tax);
         }
 
         if (photoUrl != null) {
@@ -698,6 +697,7 @@ System.out.println("waToUser -> " + jin);
         String orgId = props.getProperty(PROP_ORGID_NEWUSER);
         Organization org = Organization.load(orgId, myShepherd);
         if (org != null) user.addOrganization(org);
+        myShepherd.getPM().makePersistent(user);
         return user;
     }
 
@@ -776,6 +776,7 @@ System.out.println("waToUser -> " + jin);
         enc.setOccurrenceID(occ.getID());
 
         User sub = oaToUser(occJson, myShepherd, occ);
+        if ((sub != null) && (sub.getUsername() != null)) enc.setSubmitterID(sub.getUsername());
         enc.addSubmitter(sub);
 
         //we have a start_date and end_date in *very top level* (not occJson!) but it seems (!??) to always be the
@@ -896,7 +897,7 @@ ITIS Species TSN: "552298",
 
     public static Taxonomy findTaxonomy(Shepherd myShepherd, String tstring) {
         if (tstring == null) return null;
-        List<Taxonomy> found = Taxonomy.findMatch(myShepherd, "(?i)" + tstring);  //exact match (but case-insensitive)
+        List<Taxonomy> found = Taxonomy.findMatch(myShepherd, "(?i)" + java.util.regex.Pattern.quote(tstring));  //exact match (but case-insensitive)
         if (found.size() > 0) return found.get(0);
         return null;
     }
@@ -1050,13 +1051,28 @@ ITIS Species TSN: "552298",
     //note: since is seconds (int), NOT millis (long) !!!
     public static JSONObject ciGetTripListSince(int since) throws RuntimeException, MalformedURLException, IOException, NoSuchAlgorithmException, InvalidKeyException {
 System.out.println(">>> ciGetTripListSince grabbing since " + new DateTime(new Long(since) * 1000));
-        return apiGet("/project/" + PROJECT_ID_CI + "/trip_data/" + since + "/0");
+        return apiGet("/project/" + PROJECT_ID_CI + "/trip_data/" + since + "/" + (int)(System.currentTimeMillis() / 1000));
     }
     public static JSONObject waGetTripListSince(int since) throws RuntimeException, MalformedURLException, IOException, NoSuchAlgorithmException, InvalidKeyException {
 System.out.println(">>> waGetTripListSince grabbing since " + new DateTime(new Long(since) * 1000));
-        return apiGet("/project/" + PROJECT_ID_WA + "/trip_data/" + since + "/0");
+        return apiGet("/project/" + PROJECT_ID_WA + "/trip_data/" + since + "/" + (int)(System.currentTimeMillis() / 1000));
     }
 
+
+    //this assumes the user is Whale Alert (for now?)
+    public static boolean testLogin(String username, String password) {
+        try {
+            checkInit();
+            long since = (System.currentTimeMillis() - (7*24*60*60*1000)) / 1000l;
+            URL getUrl = new URL(apiUrlPrefix + "/project/" + PROJECT_ID_WA + "/trip_data/" + since + "/" + (int)(System.currentTimeMillis() / 1000));
+            String res = RestClient.get(getUrl, username, password);
+        } catch (Exception ex) {
+            System.out.println("SpotterConserveIO.testLogin() failed with " + ex.toString());
+            ex.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
     //TODO needs some better way to tell some of these... sigh
     public static String tripFlavor(JSONObject tripData) {

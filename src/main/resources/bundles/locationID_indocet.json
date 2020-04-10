@@ -4,39 +4,24 @@
   "locationID": [
 
 
-		{
-		"name": "Indian Ocean",
+{
+		"name":"Indian Ocean", "id":"IndianOcean",
 		"locationID":[
-		 {
-		  "name": "Andaman Sea" },
-		 {
-		  "name": "Arabian Sea" },
-		 {
-		  "name": "Bay of Bengal" },
-		 {
-		  "name": "Gulf of Aden" },
-		 {
-		  "name": "Gulf of Oman" },
-		 {
-		  "name": "Laccadive Sea" },
-		 {
-		  "name": "Mozambique Channel" },
-		 {
-		  "name": "Persian Gulf" },
-		 {
-		  "name": "Red Sea" },
-		 {
-		  "name": "Timor Sea" 
-		  },
-		  {
-		  "name": "Nosy Be" ,"id": "Nosy Be" 
-		  },
-		  {
-		  "name": "Nosy Iranja" ,"id": "Nosy Iranja" 
-		  },		  
-		  {
-		  "name": "Nosy Mitsio" ,"id": "Nosy Mitsio"
-		  },
+	
+
+		  {"name":"Madagascar","id":"Madagascar",
+		  "locationID":[
+				  {
+				  "name": "Nosy Be" ,"id": "Nosy Be" 
+				  },
+				  {
+				  "name": "Nosy Iranja" ,"id": "Nosy Iranja" 
+				  },		  
+				  {
+				  "name": "Nosy Mitsio" ,"id": "Nosy Mitsio"
+				  }
+			  ]
+			},
 		  {
 		  "name": "Antongil Bay" ,"id": "Antongil Bay" 
 		  },
@@ -94,8 +79,8 @@
 		  {
 		  "name": "Anjouan", "id": "Anjouan"
 		  }
+
 		],
-		"id": "3",
 		"defaultLatitude": -20.0,
 		"defaultLongitude": 80.0
     }

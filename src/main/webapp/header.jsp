@@ -60,22 +60,14 @@ String profilePhotoURL=urlLoc+"/images/empty_profile.jpg";
 // we use this arg bc we can only log out *after* including the header on logout.jsp. this way we can still show the logged-out view in the header
 boolean loggingOut = Util.requestHasVal(request, "loggedOut");
 
-boolean indocetUser = false;
-String organization = request.getParameter("organization");
-if (organization!=null && organization.toLowerCase().equals("indocet"))  {
-  indocetUser = true;
-}
 myShepherd.beginDBTransaction();
 try {
-  if(!indocetUser && request.getUserPrincipal()!=null && !loggingOut){
+  if(request.getUserPrincipal()!=null && !loggingOut){
     user = myShepherd.getUser(request);
     username = (user!=null) ? user.getUsername() : null;
-    String orgName = "indocet";
-    Organization indocetOrg = myShepherd.getOrganizationByName(orgName);
-    indocetUser = ((user!=null && user.hasAffiliation(orgName)) || (indocetOrg!=null && indocetOrg.hasMember(user)));
-  	if(user.getUserImage()!=null){
-  	  profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+user.getUsername()+"/"+user.getUserImage().getFilename();
-  	}
+   if(user!=null && user.getUserImage()!=null){
+     profilePhotoURL="/"+CommonConfiguration.getDataDirectoryName(context)+"/users/"+user.getUsername()+"/"+user.getUserImage().getFilename();
+   }
   }
 }
 catch(Exception e){
@@ -94,16 +86,18 @@ finally{
 
 <html>
     <head>
-
+      
       <!-- Global site tag (gtag.js) - Google Analytics -->
-      <script async src="https://www.googletagmanager.com/gtag/js?id=UA-30944767-13"></script>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=UA-30944767-5"></script>
 
       <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
 
-        gtag('config', 'UA-30944767-13');
+
+        gtag('config', 'UA-30944767-5');
+
       </script>
 
       <title><%=pageTitle%></title>
@@ -116,13 +110,30 @@ finally{
             content="<%=CommonConfiguration.getHTMLKeywords(context) %>"/>
       <meta name="Author" content="<%=CommonConfiguration.getHTMLAuthor(context) %>"/>
       <link rel="shortcut icon"
-            href="<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
+            href="//<%=urlLoc %>/<%=CommonConfiguration.getHTMLShortcutIcon(context) %>"/>
       <link href='//fonts.googleapis.com/css?family=Oswald:400,300,700' rel='stylesheet' type='text/css'/>
       <link rel="stylesheet" href="<%=urlLoc %>/cust/mantamatcher/css/manta.css" />
 
       <%
-      if (indocetUser) {
+      if (ServletUtilities.useCustomStyle(request, "IndoCet")) {
+        System.out.println("Using custom indocet style!!");
         %><link rel="stylesheet" href="<%=urlLoc %>/cust/indocet/overwrite.css" /><%
+      } else if (ServletUtilities.useCustomStyle(request, "wild dolphin project") || ServletUtilities.useCustomStyle(request, "wdp")) {
+        System.out.println("Using custom wild dolphin project style!!");
+         %><link rel="stylesheet" href="<%=urlLoc %>/cust/wilddolphinproject/overwrite.css" /><%
+      } else if (ServletUtilities.useCustomStyle(request, "CARI'MAM Project")) {
+        System.out.println("Using custom CARI'MAM Project style!!");
+         %>
+          <style type="text/css">
+            a.navbar-brand.carimam {
+              display: inline !important; /* display: none by default; */
+              background: url(images/partner-logos/carimam/network-logo.png) no-repeat;
+              background-position: center;
+              background-size: 150px;
+              min-height: 100px;
+            }
+          </style>
+         <%
       }
       %>
       <!-- Icon font necessary for indocet style, but for consistency will be applied everywhere -->
@@ -130,16 +141,16 @@ finally{
       <link rel="stylesheet" href="<%=urlLoc %>/fonts/elusive-icons-2.0.0/css/icon-style-overwrite.css">
 
       <link href="<%=urlLoc %>/tools/jquery-ui/css/jquery-ui.css" rel="stylesheet" type="text/css"/>
-     
+
      <%
      if((CommonConfiguration.getProperty("allowSocialMediaLogin", context)!=null)&&(CommonConfiguration.getProperty("allowSocialMediaLogin", context).equals("true"))){
-     %> 	
+     %>
     	 <link href="<%=urlLoc %>/tools/hello/css/zocial.css" rel="stylesheet" type="text/css"/>
      <%
      }
      %>
-     
-     
+
+
       <!-- <link href="<%=urlLoc %>/tools/timePicker/jquery.ptTimeSelect.css" rel="stylesheet" type="text/css"/> -->
 	    <link rel="stylesheet" href="<%=urlLoc %>/tools/jquery-ui/css/themes/smoothness/jquery-ui.css" type="text/css" />
 
@@ -157,30 +168,30 @@ finally{
 
 	 <%
      if((CommonConfiguration.getProperty("allowSocialMediaLogin", context)!=null)&&(CommonConfiguration.getProperty("allowSocialMediaLogin", context).equals("true"))){
-     %> 
+     %>
       <script type="text/javascript" src="<%=urlLoc %>/tools/hello/javascript/hello.all.js"></script>
       <%
       }
       %>
-      
+
       <script type="text/javascript"  src="<%=urlLoc %>/JavascriptGlobals.js"></script>
       <script type="text/javascript"  src="<%=urlLoc %>/javascript/collaboration.js"></script>
 
       <script type="text/javascript"  src="<%=urlLoc %>/javascript/imageEnhancer.js"></script>
-      <link type="text/css" href="<%=urlLoc %>/css/imageEnhancer.css" rel="stylesheet" />    
+      <link type="text/css" href="<%=urlLoc %>/css/imageEnhancer.css" rel="stylesheet" />
 
       <script src="<%=urlLoc %>/javascript/lazysizes.min.js"></script>
 
  	<!-- Start Open Graph Tags -->
  	<meta property="og:url" content="<%=request.getRequestURI() %>?<%=request.getQueryString() %>" />
   	<meta property="og:site_name" content="<%=CommonConfiguration.getHTMLTitle(context) %>"/>
-  	<!-- End Open Graph Tags -->    
+  	<!-- End Open Graph Tags -->
 
 
 	<!-- Clockpicker on creatSurvey jsp -->
     <script type="text/javascript" src="<%=urlLoc %>/tools/clockpicker/jquery-clockpicker.min.js"></script>
-    <link type="text/css" href="<%=urlLoc %>/tools/clockpicker/jquery-clockpicker.min.css" rel="stylesheet" /> 
-   
+    <link type="text/css" href="<%=urlLoc %>/tools/clockpicker/jquery-clockpicker.min.css" rel="stylesheet" />
+
     <style>
       ul.nav.navbar-nav {
         width: 100%;
@@ -366,6 +377,8 @@ finally{
                   </div>
                   <a class="navbar-brand wildbook" target="_blank" href="<%=urlLoc %>">Wildbook for Mark-Recapture Studies</a>
                   <a class="navbar-brand indocet" target="_blank" href="<%=urlLoc %>" style="display: none">Wildbook for Mark-Recapture Studies</a>
+                  <a class="navbar-brand carimam" target="_blank" href="" style="display: none">Cari'Mam Project</a>
+                  <a class="navbar-brand wilddolphinproject" target="_blank" href="<%=urlLoc %>" style="display: none">Wildbook for Mark-Recapture Studies</a>
 
                 </div>
               </div>
@@ -386,23 +399,23 @@ finally{
                     <ul class="nav navbar-nav">
 
                       <li><!-- the &nbsp on either side of the icon aligns it with the text in the other navbar items, because by default them being different fonts makes that hard. Added two for horizontal symmetry -->
-                        
+
                         <a href="<%=urlLoc %>">&nbsp<span class="el el-home"></span>&nbsp</a>
                       </li>
 
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("submit")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
-                            
+
                             <li><a href="<%=urlLoc %>/submit.jsp"><%=props.getProperty("report")%></a></li>
-                            
+
                             <!--
                             <li class="dropdown"><a href="<%=urlLoc %>/surveys/createSurvey.jsp"><%=props.getProperty("createSurvey")%></a></li>
                             -->
-                            
+
                             <li class="dropdown"><a href="<%=urlLoc %>/import/instructions.jsp"><%=props.getProperty("bulkImport")%></a></li>
                         </ul>
-                      </li>                      
+                      </li>
                       <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><%=props.getProperty("learn")%> <span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
@@ -486,15 +499,18 @@ finally{
                             if(CommonConfiguration.allowBatchUpload(context) && (request.isUserInRole("admin"))) { %>
                               <li><a href="<%=urlLoc %>/BatchUpload/start"><%=props.getProperty("batchUpload")%></a></li>
                             <% }
+                            if(request.isUserInRole("orgAdmin")) { %>
+                            	<li><a href="<%=urlLoc %>/appadmin/users.jsp?context=context0"><%=props.getProperty("userManagement")%></a></li>
+							<%
+                            }
                             if(request.isUserInRole("admin")) { %>
                               <li><a href="<%=urlLoc %>/appadmin/admin.jsp"><%=props.getProperty("general")%></a></li>
                               <li><a href="<%=urlLoc %>/reports.jsp"><%=props.getProperty("adminReports")%></a></li>
                               <li><a href="<%=urlLoc %>/appadmin/logs.jsp"><%=props.getProperty("logs")%></a></li>
-                                
-                                <li><a href="<%=urlLoc %>/appadmin/users.jsp?context=context0"><%=props.getProperty("userManagement")%></a></li>
-								<li><a href="<%=urlLoc %>/appadmin/intelligentAgentReview.jsp?context=context0"><%=props.getProperty("intelligentAgentReview")%></a></li>
-								
-                                <% 
+
+                                <li><a href="<%=urlLoc %>/appadmin/intelligentAgentReview.jsp?context=context0"><%=props.getProperty("intelligentAgentReview")%></a></li>
+
+                                <%
                                 if (CommonConfiguration.getIPTURL(context) != null) { %>
                                   <li><a href="<%=CommonConfiguration.getIPTURL(context) %>"><%=props.getProperty("iptLink")%></a></li>
                                 <% } %>
@@ -510,9 +526,7 @@ finally{
                                 <li><a href="<%=urlLoc %>/javadoc/index.html">Javadoc</a></li>
                                 <% if(CommonConfiguration.isCatalogEditable(context)) { %>
                                   <li class="divider"></li>
-                                  <li><a href="<%=urlLoc %>/import/instructions.jsp"><%=props.getProperty("bulkImport")%></a></li>
                                   <li><a href="<%=urlLoc %>/imports.jsp"><%=props.getProperty("standardImportListing")%></a></li>
-                                  <li><a href="<%=urlLoc %>/appadmin/import.jsp"><%=props.getProperty("dataImport")%></a></li>
                                 <%
                                 }
 
@@ -600,6 +614,7 @@ finally{
                         var res = $.map(data, function(item) {
                             var label="";
                             var nickname="";
+                            var species="";
                             if ((item.type == "individual")&&(item.species!=null)) {
 //                                label = item.species + ": ";
                             }
@@ -608,12 +623,16 @@ finally{
                             } else {
                                 label = "";
                             }
-                            
+
                             if(item.nickname != null){
-                            	nickname = " ("+item.nickname+")";
+                            	nickname = " \""+item.nickname+"\"";
                             }
-                            
-                            return {label: label + item.label+nickname,
+                            if(item.species != null){
+                            	species = " ("+item.species.substring(0,6)+".)";
+
+                            }
+
+                            return {label: label + item.label+nickname+species,
                                     value: item.value,
                                     type: item.type,
                                     nickname: nickname};
@@ -638,8 +657,8 @@ finally{
         if (urlParams.has("organization")) {
           let orgParam = urlParams.get("organization");
           $.cookie("wildbookOrganization", orgParam, {
-              path    : '/',     
-              secure  : false, 
+              path    : '/',
+              secure  : false,
               expires : 1
           });
         }

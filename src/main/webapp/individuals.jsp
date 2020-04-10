@@ -134,7 +134,7 @@ if (request.getParameter("id")!=null || request.getParameter("number")!=null) {
 	myShepherd.beginDBTransaction();
 	try {
 
-		MarkedIndividual indie = myShepherd.getMarkedIndividual(id);
+		MarkedIndividual indie = myShepherd.getMarkedIndividualQuiet(id);
 		if (indie != null) {
 			Vector myEncs=indie.getEncounters();
 
@@ -306,7 +306,7 @@ input.nameKey, input.nameValue {
 <script src="javascript/bubbleDiagram/misc.js"></script>
 <script src="javascript/bubbleDiagram/micro-observer.js"></script>
 <script src="javascript/bubbleDiagram/microplugin.js"></script>
-<script src="javascript/kdTree.js"></script>
+<script src="javascript/kdTree.js"></script>	
 <script src="javascript/relationshipDiagrams/jsonParser.js"></script>
 <script src="javascript/relationshipDiagrams/graphAbstract.js"></script>
 <script src="javascript/relationshipDiagrams/forceLayoutAbstract.js"></script>
@@ -445,7 +445,7 @@ $(document).ready(function() {
     <div class="col-sm-6">
 
           <%
-          MarkedIndividual sharky=myShepherd.getMarkedIndividual(id);
+          MarkedIndividual sharky=myShepherd.getMarkedIndividualQuiet(id);
 
           // replace this with canUserViewIndividual?
 //          boolean isOwner = ServletUtilities.isUserAuthorizedForIndividual(sharky, request);
