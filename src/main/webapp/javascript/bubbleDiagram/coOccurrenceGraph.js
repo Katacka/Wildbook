@@ -12,6 +12,7 @@ function setupOccurrenceGraph(individualId, containerId, globals, parser=null) {
     occ.applyOccurrenceData();
 }
 
+
 //Sparse-tree mapping co-occurrence relationships between a focused individual and its species
 class OccurrenceGraph extends ForceLayoutAbstract {
     constructor(individualId, containerId, globals, focusedScale, parser=null) {

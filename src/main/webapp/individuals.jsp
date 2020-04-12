@@ -134,7 +134,7 @@ if (request.getParameter("id")!=null || request.getParameter("number")!=null) {
 	myShepherd.beginDBTransaction();
 	try {
 
-		MarkedIndividual indie = myShepherd.getMarkedIndividualQuiet(id);
+		MarkedIndividual indie = myShepherd.getMarkedIndividual(id);
 		if (indie != null) {
 			Vector myEncs=indie.getEncounters();
 
@@ -306,7 +306,7 @@ input.nameKey, input.nameValue {
 <script src="javascript/bubbleDiagram/misc.js"></script>
 <script src="javascript/bubbleDiagram/micro-observer.js"></script>
 <script src="javascript/bubbleDiagram/microplugin.js"></script>
-<script src="javascript/kdTree.js"></script>	
+<script src="javascript/kdTree.js"></script>
 <script src="javascript/relationshipDiagrams/jsonParser.js"></script>
 <script src="javascript/relationshipDiagrams/graphAbstract.js"></script>
 <script src="javascript/relationshipDiagrams/forceLayoutAbstract.js"></script>
@@ -445,7 +445,7 @@ $(document).ready(function() {
     <div class="col-sm-6">
 
           <%
-          MarkedIndividual sharky=myShepherd.getMarkedIndividualQuiet(id);
+          MarkedIndividual sharky=myShepherd.getMarkedIndividual(id);
 
           // replace this with canUserViewIndividual?
 //          boolean isOwner = ServletUtilities.isUserAuthorizedForIndividual(sharky, request);
@@ -801,7 +801,7 @@ if (sharky.getNames() != null) {
             if(CommonConfiguration.showProperty("showTaxonomy",context)){
 
             String genusSpeciesFound=props.getProperty("notAvailable");
-            if(sharky.getGenusSpecies()!=null){genusSpeciesFound=sharky.getGenusSpecies();}
+            if(sharky.getGenusSpeciesDeep()!=null){genusSpeciesFound=sharky.getGenusSpeciesDeep();}
             %>
             <p>
               <%=props.getProperty("taxonomy")%>: <em><%=genusSpeciesFound%></em>
@@ -1696,8 +1696,19 @@ if (sharky.getNames() != null) {
 	<p><strong><%=props.getProperty("cooccurrence")%></strong></p>
 	<script type="text/javascript">
         <% String occurrenceIndividualID = sharky.getIndividualID();%>
-        <% String individualGenus = sharky.getGenusSpecies();%>
-	<% String individualEpithet = sharky.getSpecificEpithet();%>
+
+	String individualGenus = sharky.getGenusSpecies();
+	String individualEpithet = sharky.getSpecificEpithet();
+		if(individualGenus == null || individualEpithet==null){
+			if(sharky.getGenusSpeciesDeep()!=null){
+				
+				StringTokenizer str=new StringTokenizer(sharky.getGenusSpeciesDeep()," ");
+				if(str.hasMoreTokens()){individualGenus=str.nextToken();}
+				if(str.hasMoreTokens()){individualEpithet=str.nextToken();}
+			}
+		}
+	
+		%>
 
         $(document).ready(function() {
           getData("<%=occurrenceIndividualID%>", "<%=sharky.getDisplayName() %>");
