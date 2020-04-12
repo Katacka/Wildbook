@@ -1695,7 +1695,7 @@ if (sharky.getNames() != null) {
         <a name="cooccurrence"></a>
 	<p><strong><%=props.getProperty("cooccurrence")%></strong></p>
 	<script type="text/javascript">
-        <% String occurrenceIndividualID = sharky.getIndividualID();%>
+        <% String occurrenceIndividualID = sharky.getIndividualID();
 
 	String individualGenus = sharky.getGenusSpecies();
 	String individualEpithet = sharky.getSpecificEpithet();
