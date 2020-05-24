@@ -115,7 +115,7 @@ class JSONQuerier {
     queryNodeData(genus, epithet) {
 	let query;
 	if (!this.localFiles) {
-	    query = window.location.host + this.globals.baseUrl + "/encounters/socialJson.jsp?";
+	    query = "//" + window.location.host + "/encounters/socialJson.jsp?";
 	    if (genus) query += "genus=" + genus + "&";
 	    if (epithet) query += "specificEpithet=" + epithet + "&";
 	}
@@ -132,9 +132,14 @@ class JSONQuerier {
     queryRelationshipData(genus) {
 	let query;
 	if (!this.localFiles) {
-	    query = this.globals.baseUrl + "/api/jdoql?" +
-		encodeURIComponent("SELECT FROM org.ecocean.social.Relationship " +
-				   "WHERE (this.type == \"social grouping\")");
+		query = "//"+window.location.host + "/encounters/relationshipJSON.jsp?"
+		if (genus) query += "genus=" + genus;
+	    //query = "//"+window.location.host + "/api/jdoql?" +
+		//encodeURIComponent(
+		//		"SELECT FROM org.ecocean.social.Relationship " +
+		//		   "WHERE (this.type != null )"
+		//)
+		;
 	}
 	else query = "./Relationship.json";
 	return this.queryData("relationshipData", query);
