@@ -37,3 +37,5 @@ src/main/caribwhale_data_dir
 .classpath
 
 catalina.base_IS_UNDEFINED
+/src/main/webapp/WEB-INF/web.xml
+.gitignore

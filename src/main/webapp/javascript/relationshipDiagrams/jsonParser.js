@@ -87,9 +87,9 @@ class JSONQuerier {
 	this.localFiles = localFiles;
     }
 
-        /**
+    /**
      * Static function used to populate the {nodeData} and {relationshipData} fields prior to
-     * generating graphs s.t. data is guarenteed to only be queried once
+     * generating graphs s.t. data is guaranteed to only be queried once
      * @param {iId} [String] - The id of the central node
      * @param {genus} [String] - The genus of the central node
      * @param {callbacks} [List] - Graphing functions to call
@@ -98,6 +98,7 @@ class JSONQuerier {
     async preFetchData(iId, genus, epithet, callbacks, diagramIds, parsers=[]) {
 	await this.queryNodeData(genus, epithet);
 	await this.queryRelationshipData(genus);
+	await this.queryOccurrences();
 	
 	//Graph data
 	for (let i = 0; i < callbacks.length; i ++) {
@@ -115,12 +116,18 @@ class JSONQuerier {
     queryNodeData(genus, epithet) {
 	let query;
 	if (!this.localFiles) {
-	    query = "//" + window.location.host + "/encounters/socialJson.jsp?";
+	    let hostname = window.location.host;
+
+	    //Localhost compatability
+	    if (hostname.includes("localhost") && !hostname.includes("wildbook"))
+		hostname += "/wildbook";
+
+	    //TODO - Verify functional query string for host?
+	    query = "http://" + hostname  + "/encounters/socialJson.jsp?";
 	    if (genus) query += "genus=" + genus + "&";
 	    if (epithet) query += "specificEpithet=" + epithet + "&";
 	}
 	else query = "./MarkedIndividual.json";
-	console.log(query);
 	return this.queryData("nodeData", query, this.storeQueryAsDict);
     }
 
@@ -132,17 +139,33 @@ class JSONQuerier {
     queryRelationshipData(genus) {
 	let query;
 	if (!this.localFiles) {
-		query = "//"+window.location.host + "/encounters/relationshipJSON.jsp?"
-		if (genus) query += "genus=" + genus;
-	    //query = "//"+window.location.host + "/api/jdoql?" +
-		//encodeURIComponent(
-		//		"SELECT FROM org.ecocean.social.Relationship " +
-		//		   "WHERE (this.type != null )"
-		//)
-		;
+	    let hostname = window.location.host;
+
+	    //Localhost compatability
+	    if (hostname.includes("localhost") && !hostname.includes("wildbook"))
+		hostname += "/wildbook"
+
+	    query = "http://" + hostname + "/encounters/relationshipJSON.jsp?"
+	    if (genus) query += "genus=" + genus;
 	}
 	else query = "./Relationship.json";
 	return this.queryData("relationshipData", query);
+    }
+
+    /**
+     * Query wrapper for the storage of Occurrence data
+     * @param {genus} [String] - The genus of the central node being graphed
+     * @returns {queryData} [array] - All Relationship data in the Wildbook DB
+     */
+    queryOccurrences() {
+	let hostname = window.location.host;
+	
+	//Localhost compatability
+	if (hostname.includes("localhost") && !hostname.includes("wildbook"))
+	    hostname += "/wildbook"
+
+	let query = `http://${hostname}/api/jdoql?SELECT FROM org.ecocean.Occurrence`;
+	return this.queryData("occurrenceData", query);
     }
 
     /**
@@ -156,10 +179,7 @@ class JSONQuerier {
 	return new Promise((resolve, reject) => {
 	    if (!JSONParser[type]) { //Memoize the result
 		d3.json(query, (error, json) => {
-		    if (error) {
-			console.log(error);
-			reject(error);
-		    }
+		    if (error) reject(error);
 		    else if (callback) callback(json, type, resolve);
 		    else {
 			JSONParser[type] = json;
@@ -178,6 +198,7 @@ class JSONQuerier {
      * @param {resolve} [function] - Resolves the queryData promise
      */
     storeQueryAsDict(json, type, resolve) {
+	console.log(json);
 	if (json.length >= 1) {
 	    JSONParser[type] = {};
 	    json.forEach(el => {
@@ -318,7 +339,6 @@ class JSONParser {
 		if (this.maxNumNodes > 0 && numNodes >= this.maxNumNodes) return [graphNodes, groupNum];
 
 		//Update the node
-		console.log(name);
 		graphNodes[name] = this.updateNodeData(nodes[name], group, this.getNodeId(), depth, iIdLinked);
 		numNodes++;
 
